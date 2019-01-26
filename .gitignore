@@ -1,0 +1,16 @@
+.DS_Store
+target
+build
+.idea
+.project
+.classpath
+.settings
+.factorypath
+.springBeans
+*.log
+*.class
+*.o
+*.dll
+*.dylib
+*.lib
+
