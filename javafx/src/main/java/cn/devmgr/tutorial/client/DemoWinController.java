@@ -1,11 +1,19 @@
 package cn.devmgr.tutorial.client;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Worker;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
+import javafx.stage.Stage;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
@@ -79,4 +87,39 @@ public class DemoWinController {
         logger.trace("okButton clicked, {}", nameField.getText());
     }
 
+
+    @FXML
+    private void openBrowserState(ActionEvent event){
+        logger.trace("openBrowserSate");
+        Stage browserStage = new Stage();
+        browserStage.setWidth(1000);
+        browserStage.setHeight(600);
+        browserStage.setAlwaysOnTop(true);
+        Scene scene = new Scene(new Group());
+
+        final WebView browser = new WebView();
+        final WebEngine webEngine = browser.getEngine();
+
+//        ScrollPane scrollPane = new ScrollPane();
+//        scrollPane.setContent(browser);
+
+        webEngine.getLoadWorker().stateProperty()
+                .addListener(new ChangeListener<Worker.State>() {
+                    @Override
+                    public void changed(ObservableValue ov, Worker.State oldState, Worker.State newState) {
+                        logger.trace("changed.....ObservableValue: {}", ov.getValue());
+                        if (newState == Worker.State.SUCCEEDED) {
+                            browserStage.setTitle(webEngine.getLocation());
+                            //可以通过webengine.executeScript方法执行页面内javascript，改变页面内容等等
+                            webEngine.executeScript("document.body.innerHTML += '<div style=\"border:20px solid red\"><b>SomeText</b></div>';document.getElementById('main').style.border='20px solid blue';");
+
+                        }
+
+                    }
+                });
+        webEngine.load("http://devmgr.cn");
+        scene.setRoot(browser);
+        browserStage.setScene(scene);
+        browserStage.show();
+    }
 }
