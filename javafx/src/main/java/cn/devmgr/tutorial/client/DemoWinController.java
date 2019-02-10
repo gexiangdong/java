@@ -12,11 +12,18 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.protocol.HttpClientContext;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.io.InputStream;
 
+
+/**
+ * 和 javafxdemowin.fxml 相结合的控制器
+ */
 public class DemoWinController {
+    private static final Logger logger = LoggerFactory.getLogger(DemoWinController.class);
+
     @FXML
     private Button okButton;
 
@@ -26,36 +33,16 @@ public class DemoWinController {
     @FXML
     private ImageView imageView;
 
-    public DemoWinController(Button okButton) {
-        this.okButton = okButton;
-    }
 
-    @FXML
-    private void okButtonClicked(ActionEvent event) {
-        System.out.println("okButton clicked, " + nameField.getText());
-    }
 
-    public DemoWinController(){
-        // 这个空构造函数必须有；否则会报错：（很奇怪）
-        // Caused by: java.lang.InstantiationException: cn.devmgr.tutorial.client.DemoWinController
-        //	at java.lang.Class.newInstance(Class.java:427)
-        //	at sun.reflect.misc.ReflectUtil.newInstance(ReflectUtil.java:51)
-        //	at javafx.fxml.FXMLLoader$ValueElement.processAttribute(FXMLLoader.java:927)
-        //	... 19 more
-        //Caused by: java.lang.NoSuchMethodException: cn.devmgr.tutorial.client.DemoWinController.<init>()
-        //	at java.lang.Class.getConstructor0(Class.java:3082)
-        //	at java.lang.Class.newInstance(Class.java:412)
-        //	... 21 more
-        //Exception running application cn.devmgr.tutorial.client.JavafxApp
-    }
 
     /**
-     * Initializes the controller class. This method is automatically called
-     * after the fxml file has been loaded.
+     * 初始化这个 controller 类，这个方法当 fxml 文件被加载，本类的 @FXML 注解设置的成员变量都被初始化后执行。
+     * 因此可以在此方法里调用其他带有 @FXML 注解的成员变量, 并设置/修改他们的属性（如果尝试在构造函数中修改会得到null）。
      */
     @FXML
     private void initialize() {
-        System.out.println("initialize  okButton=" + okButton);
+        logger.trace("initialize  okButton={}", okButton);
         showImage();
     }
 
@@ -75,16 +62,21 @@ public class DemoWinController {
                 is.close();
                 imageView.setImage(image);
 
-                System.out.println("OK");
+                logger.trace("OK");
             } else {
-                System.out.println("ERROR: " + response.getStatusLine().getStatusCode());
+                logger.warn("ERROR: {}", response.getStatusLine().getStatusCode());
                 throw new RuntimeException("返回数据错误");
             }
         }catch (Exception e){
-            e.printStackTrace();
+            logger.error("ERROR", e);
         }
         nameField.requestFocus();
     }
 
+
+    @FXML
+    private void okButtonClicked(ActionEvent event) {
+        logger.trace("okButton clicked, {}", nameField.getText());
+    }
 
 }
