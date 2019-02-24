@@ -60,7 +60,7 @@ public class ProducerConsumer {
         });
         writerThread.start();
         readerThread.start();
-        writerThread.join();
+        writerThread.join();    //等待线程结束
         readerThread.join();
     }
 }
