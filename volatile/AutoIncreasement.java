@@ -1,3 +1,5 @@
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * 这是一个 volatile 关键字功能有限的例子；不适合使用 volatile 的例子
  * 
@@ -7,10 +9,14 @@
  * 
  * add() 结果不正确发生有一定几率，如果一直不发生，可尝试更改add中for循环的次数，次数高时，CPU更加
  * 繁忙，而没有时间同步CPU的缓存和主存数据；容易出现使用的缓存数据和主存不同步，进而结果不是期望的。
+ * 
+ * 使用AtomicInteger也可以解决此例的并发问题；
+ * 
  */
 public class AutoIncreasement{
     private volatile int counter = 0;       //即使有volatile也没用；这个不是volatile能解决的问题
     private int syncCounter = 0;            //方法上有synchronized关键字；这里不需要volatile
+    private AtomicInteger atomicCounter = new AtomicInteger(0);  //使用AtomicInteger也能解决这个多线程问题
 
     public void add(){
         //System.out.println(Thread.currentThread().getId() + " add from " + count);
@@ -23,6 +29,12 @@ public class AutoIncreasement{
     public synchronized void syncAdd(){
         for(int i=0; i<10000; i++){
             syncCounter ++;
+        }
+    }
+
+    public void atomicAdd(){
+        for(int i=0; i<10000; i++){
+            atomicCounter.getAndIncrement();
         }
     }
 
@@ -46,6 +58,17 @@ public class AutoIncreasement{
                 }
             });
         System.out.println("syncAdd cost: " + (System.currentTimeMillis() - t1) + "ms, result=" + ai2.syncCounter);
+    
+        t1 = System.currentTimeMillis();
+        final AutoIncreasement ai3 = new AutoIncreasement();
+        runAdd(new Runnable(){
+                @Override
+                public void run() {
+                    ai3.atomicAdd();
+                }
+            });
+        System.out.println("atomicAdd cost: " + (System.currentTimeMillis() - t1) + "ms, result=" + ai3.atomicCounter.get());
+    
     }
 
     private static void runAdd(Runnable runnable) throws Exception{
