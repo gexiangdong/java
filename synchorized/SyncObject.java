@@ -18,8 +18,8 @@ public class SyncObject {
             System.out.print("{");
             Thread.sleep(2);
             System.out.println("inside doA synchronized (obj) before wait. " + Thread.currentThread().getName());
-            obj.wait();
-            //执行wait()后，会释放掉锁，
+            obj.wait(); //执行wait()后，会释放掉锁并进入等待状态
+            //执行到这里时，又获得了锁，
             System.out.println("inside doA synchronized (obj) after wait. " + Thread.currentThread().getName());
             Thread.sleep(1000);
             System.out.print("}");
