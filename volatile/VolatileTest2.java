@@ -1,6 +1,9 @@
 /**
  * 这是 volatile 使用场景的一个例子
  * 
+ * 这个场景只有一个线程改变 volatile 修饰的 counter 变量，另外一个线程是读取。
+ * 如果多个线程修改，则不是 volatile 适合的场景
+ * 
  * 和TestVolatile类类似；只是这里是静态变量
  */
 public class VolatileTest2 {
